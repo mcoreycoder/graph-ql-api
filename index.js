@@ -11,13 +11,18 @@ const typeDefs = `
     type Query {
       dogs: [Dog!]!
     }
+
     type Dog {
       breed: String!
-      id: String
+      id: ID
       age: Int!
     }
+    
     type Mutation {
-        addDog(breed: String!, age: Int!, id: String): Dog
+        addDog(breed: String!, age: Int!): Dog
+        deleteDog(id: String): Dog
+        updateDog(breed: String!, age: Int!, id: ID): Dog
+
     }
   `
 
@@ -30,15 +35,35 @@ const resolvers = {
     },
     Mutation: {
         addDog: async (parent, args, context, info) => {
-            console.log('args', { ...args, id: sampleDogs.length+1 })
-            console.log('args2', args.breed)
-            console.log('sampleDogs Mutation', sampleDogs)
+            // console.log('args', { ...args, id: sampleDogs.length + 1 })
+            // console.log('args2', args.breed)
+            // console.log('sampleDogs Mutation', sampleDogs)
 
-            let newDog = await { ...args, id: sampleDogs.length+1 }
+            let newDog = await { ...args, id: sampleDogs.length + 1 }
             sampleDogs = await [...sampleDogs, newDog]
 
             return newDog
-        }
+        },
+        deleteDog: async (parent, args, context, info) => {
+            const dogToDelete = await sampleDogs.find(x => x.id == args.id);
+            console.log("dogToDelete", dogToDelete)
+
+            sampleDogs = await sampleDogs.filter(dog => dog.id !== dogToDelete.id);
+            return dogToDelete;
+        },
+        updateDog: async (parent, args, context, info) => {
+            console.log("updateDog args", args)
+            const dogIndex = await sampleDogs.findIndex(dog => dog.id == args.id);
+            console.log("dogToUpdate", dogIndex)
+            const dogUpdated = args;
+            console.log("dogUpdated", dogUpdated)
+
+            newDogs = await sampleDogs.splice(dogIndex, 1, dogUpdated);
+            console.log('newDogs', newDogs)
+            return dogUpdated;
+        },
+
+
     }
 }
 
