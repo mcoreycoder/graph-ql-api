@@ -10,6 +10,7 @@ let sampleDogs = [
 const typeDefs = `
     type Query {
       dogs: [Dog!]!
+     
     }
 
     type Dog {
@@ -39,7 +40,16 @@ const resolvers = {
             // console.log('args2', args.breed)
             // console.log('sampleDogs Mutation', sampleDogs)
 
-            let newDog = await { ...args, id: sampleDogs.length + 1 }
+            let dogTag = () => {
+                let endDog = sampleDogs[sampleDogs.length - 1]
+                console.log('endDog', endDog)
+                if (endDog === undefined) return 1
+                else
+                    return endDog.id + 1
+            }
+
+            let newDog = await { ...args, id: dogTag() }
+            // let newDog = await { ...args, id: endDog.id + 1 }
             sampleDogs = await [...sampleDogs, newDog]
 
             return newDog
@@ -55,12 +65,12 @@ const resolvers = {
             console.log("updateDog args", args)
             const dogIndex = await sampleDogs.findIndex(dog => dog.id == args.id);
             console.log("dogToUpdate", dogIndex)
-            const dogUpdated = args;
-            console.log("dogUpdated", dogUpdated)
+            // const dogUpdated = args;
+            // console.log("dogUpdated", dogUpdated)
 
-            newDogs = await sampleDogs.splice(dogIndex, 1, dogUpdated);
-            console.log('newDogs', newDogs)
-            return dogUpdated;
+            sampleDogs = await sampleDogs.splice(dogIndex, 1, args);
+            // console.log('newDogs', newDogs)
+            return args;
         },
 
 
